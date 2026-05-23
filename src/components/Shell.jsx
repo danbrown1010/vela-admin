@@ -1,18 +1,20 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { UserCog, Database, Activity, Wrench, LogOut, Sun, Moon, Leaf, MonitorSmartphone } from 'lucide-react'
+import { UserCog, Database, Activity, Wrench, Bug, LogOut, Sun, Moon, Leaf, MonitorSmartphone } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../context/ThemeContext'
 
 const NAV_ITEMS = [
-  { to: '/users',   label: 'Users',   Icon: UserCog  },
-  { to: '/content', label: 'Content', Icon: Database  },
-  { to: '/system',  label: 'System',  Icon: Activity  },
-  { to: '/tools',   label: 'Tools',   Icon: Wrench    },
+  { to: '/users',   label: 'Users',        Icon: UserCog  },
+  { to: '/content', label: 'Content',      Icon: Database  },
+  { to: '/bugs',    label: 'Bug Reports',  Icon: Bug       },
+  { to: '/system',  label: 'System',       Icon: Activity  },
+  { to: '/tools',   label: 'Tools',        Icon: Wrench    },
 ]
 
 const ROUTE_LABELS = {
   '/users':   'Users',
   '/content': 'Content',
+  '/bugs':    'Bug Reports',
   '/system':  'System',
   '/tools':   'Tools',
 }
