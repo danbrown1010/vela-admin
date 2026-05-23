@@ -1,30 +1,35 @@
-import { useAuth } from './hooks/useAuth'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthGate } from './components/AuthGate'
 import { Shell } from './components/Shell'
+import UsersPage   from './pages/UsersPage'
+import ContentPage from './pages/ContentPage'
+import SystemPage  from './pages/SystemPage'
+import ToolsPage   from './pages/ToolsPage'
 
-function WelcomeContent() {
-  const { user } = useAuth()
+function AdminApp() {
   return (
-    <div style={{ paddingTop: 20 }}>
-      <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--text-tertiary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-        Dashboard
-      </div>
-      <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, color: 'var(--text-primary)' }}>
-        Welcome back
-      </h1>
-      <p style={{ marginTop: 8, color: 'var(--text-secondary)', fontSize: 15 }}>
-        {user?.email}
-      </p>
-    </div>
+    <Shell>
+      <Routes>
+        <Route index element={<Navigate to="/users" replace />} />
+        <Route path="users"   element={<UsersPage />} />
+        <Route path="content" element={<ContentPage />} />
+        <Route path="system"  element={<SystemPage />} />
+        <Route path="tools"   element={<ToolsPage />} />
+        <Route path="*"       element={<Navigate to="/users" replace />} />
+      </Routes>
+    </Shell>
   )
 }
 
 export default function App() {
   return (
-    <AuthGate>
-      <Shell>
-        <WelcomeContent />
-      </Shell>
-    </AuthGate>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthGate>
+          <AdminApp />
+        </AuthGate>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
