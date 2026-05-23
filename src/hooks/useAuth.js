@@ -55,9 +55,7 @@ export function useAuth() {
   }, [])
 
   const signInWithGoogle = async () => {
-    const redirectTo = import.meta.env.DEV
-      ? 'http://localhost:5173'
-      : 'https://admin.vela-go.com'
+    const redirectTo = window.location.origin
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
