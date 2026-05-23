@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthGate } from './components/AuthGate'
 import { Shell } from './components/Shell'
-import DevRibbon   from './components/DevRibbon'
+import DevRibbon      from './components/DevRibbon'
+import ErrorBoundary  from './components/ErrorBoundary'
 import LoginPage   from './pages/LoginPage'
 import UsersPage       from './pages/UsersPage'
 import ContentPage     from './pages/ContentPage'
@@ -29,17 +30,19 @@ function AdminApp() {
 export default function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/*" element={
-            <AuthGate>
-              <AdminApp />
-            </AuthGate>
-          } />
-        </Routes>
-      </BrowserRouter>
-      <DevRibbon />
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/*" element={
+              <AuthGate>
+                <AdminApp />
+              </AuthGate>
+            } />
+          </Routes>
+        </BrowserRouter>
+        <DevRibbon />
+      </ErrorBoundary>
     </ThemeProvider>
   )
 }
