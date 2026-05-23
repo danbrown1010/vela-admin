@@ -64,12 +64,14 @@ const TAB_CONFIGS = {
   crew_members: {
     table: 'crew_members',
     columns: [
-      { key: 'crew_name',   label: 'Crew'    },
-      { key: 'owner_email', label: 'Member'  },
-      { key: 'role',        label: 'Role'    },
-      { key: 'status',      label: 'Status'  },
-      { key: 'invited_at',  label: 'Invited' },
-      { key: 'accepted_at', label: 'Accepted'},
+      { key: 'crew_name',        label: 'Crew'        },
+      { key: 'owner_email',      label: 'Member'      },
+      { key: 'role',             label: 'Role'        },
+      { key: 'status',           label: 'Status'      },
+      { key: 'invited_at',       label: 'Invited'     },
+      { key: 'accepted_at',      label: 'Accepted'    },
+      { key: 'invited_by_email', label: 'Invited By'  },
+      { key: 'guest_email',      label: 'Guest Email' },
     ],
     editFields: [
       { key: 'role',        label: 'Role',        type: 'select', options: ['pilot','copilot','observer'] },
@@ -297,7 +299,8 @@ function ContentTable({ tabKey }) {
         }
       }
 
-      q = q.order('created_at', { ascending: false }).range(from, to)
+      const orderCol = tabKey === 'crew_members' ? 'invited_at' : 'created_at'
+      q = q.order(orderCol, { ascending: false }).range(from, to)
       const { data, count, error: qErr } = await q
       if (qErr) throw qErr
 
@@ -546,23 +549,32 @@ async function enrichRows(tabKey, rows) {
     emailMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p.email]))
   }
 
-  // For crew_members, also fetch crew names
+  // For crew_members, also fetch crew names + inviter emails
   let crewMap = {}
+  let inviterMap = {}
   if (tabKey === 'crew_members') {
-    const crewIds = [...new Set(rows.map(r => r.crew_id).filter(Boolean))]
-    if (crewIds.length > 0) {
-      const { data: crews } = await supabase
-        .from('crews')
-        .select('id, name')
-        .in('id', crewIds)
-      crewMap = Object.fromEntries((crews ?? []).map(c => [c.id, c.name]))
-    }
+    const crewIds    = [...new Set(rows.map(r => r.crew_id).filter(Boolean))]
+    const inviterIds = [...new Set(rows.map(r => r.invited_by).filter(Boolean))]
+
+    const [crewRes, inviterRes] = await Promise.all([
+      crewIds.length > 0
+        ? supabase.from('crews').select('id, name').in('id', crewIds)
+        : Promise.resolve({ data: [] }),
+      inviterIds.length > 0
+        ? supabase.from('profiles').select('id, email').in('id', inviterIds)
+        : Promise.resolve({ data: [] }),
+    ])
+    crewMap    = Object.fromEntries((crewRes.data    ?? []).map(c => [c.id, c.name]))
+    inviterMap = Object.fromEntries((inviterRes.data ?? []).map(p => [p.id, p.email]))
   }
 
   return rows.map(row => ({
     ...row,
     owner_email: emailMap[row.user_id] ?? row.guest_email ?? '—',
-    ...(tabKey === 'crew_members' ? { crew_name: crewMap[row.crew_id] ?? '—' } : {}),
+    ...(tabKey === 'crew_members' ? {
+      crew_name:        crewMap[row.crew_id]     ?? '—',
+      invited_by_email: inviterMap[row.invited_by] ?? '—',
+    } : {}),
   }))
 }
 
