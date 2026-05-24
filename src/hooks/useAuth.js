@@ -12,6 +12,7 @@ export function useAuth() {
   const [loading, setLoading]     = useState(true)
   const [noSession, setNoSession] = useState(false)
   const [denied, setDenied]       = useState(false)
+  const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
     const timeout = setTimeout(() => { setLoading(false); setNoSession(true) }, 5000)
@@ -59,11 +60,15 @@ export function useAuth() {
   }, [])
 
   const signInWithGoogle = async () => {
+    setAuthError(null)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
     })
-    if (error) console.error(error)
+    if (error) {
+      console.error(error)
+      setAuthError('Sign-in failed. Please try again.')
+    }
   }
 
   const signOut = async () => {
@@ -71,5 +76,5 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  return { user, isAdmin, loading, noSession, denied, signInWithGoogle, signOut }
+  return { user, isAdmin, loading, noSession, denied, authError, signInWithGoogle, signOut }
 }

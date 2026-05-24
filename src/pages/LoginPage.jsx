@@ -17,7 +17,7 @@ function Spinner() {
 }
 
 export default function LoginPage() {
-  const { user, loading, signInWithGoogle } = useAuth()
+  const { user, loading, authError, signInWithGoogle } = useAuth()
 
   if (loading) return <Spinner />
   if (user) return <Navigate to="/" replace />
@@ -47,6 +47,18 @@ export default function LoginPage() {
             Sign in with your Vela Google account
           </div>
         </div>
+        {authError && (
+          <div style={{
+            fontSize: 13, color: 'var(--danger, #ef4444)',
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: 8, padding: '8px 12px',
+            width: '100%', textAlign: 'center',
+            fontFamily: 'var(--font-body)',
+          }}>
+            {authError}
+          </div>
+        )}
         <button onClick={signInWithGoogle} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
           padding: '12px 24px',
